@@ -1,16 +1,18 @@
 use serde_json::json;
-use vercel_runtime::{Body, Error, Request, Response, StatusCode, run};
-use url::form_urlencoded;
 use std::collections::HashMap;
+use url::form_urlencoded;
+use vercel_runtime::{Body, Error, Request, Response, StatusCode, run};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    run(handler).await
+    run(fibbot).await
 }
 
-pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
+pub async fn fibbot(req: Request) -> Result<Response<Body>, Error> {
     let query_string = req.uri().query().unwrap_or("");
-    let params: HashMap<_, _> = form_urlencoded::parse(query_string.as_bytes()).into_owned().collect();
+    let params: HashMap<_, _> = form_urlencoded::parse(query_string.as_bytes())
+        .into_owned()
+        .collect();
     let name = params.get("name");
     let number = match name {
         Some(name) => name,
@@ -24,7 +26,6 @@ pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
                 .header("Content-Type", "application/json")
                 .body(body.into())?);
         }
-        
     };
 
     Ok(Response::builder()
@@ -40,15 +41,11 @@ pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
         )?)
 }
 
-pub fn fib_number(input: u128 ) -> u128 {
-    
-    
-    
+pub fn fib_number(input: u128) -> u128 {
     let mut prev: u128 = 0;
     let mut next: u128 = 1;
 
     if input == 0 {
-        
         return 0;
     }
 
@@ -58,6 +55,6 @@ pub fn fib_number(input: u128 ) -> u128 {
         prev = next;
         next = number;
     }
-    
+
     number
 }
