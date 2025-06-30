@@ -1,6 +1,7 @@
 use serde_json::json;
 use vercel_runtime::{Body, Error, Request, Response, StatusCode, run};
 use url::form_urlencoded;
+use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -9,8 +10,22 @@ async fn main() -> Result<(), Error> {
 
 pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
     let query_string = req.uri().query().unwrap_or("");
-    let params: std::collections::HashMap<_, _> = form_urlencoded::parse(query_string.as_bytes()).into_owned().collect();
+    let params: HashMap<_, _> = form_urlencoded::parse(query_string.as_bytes()).into_owned().collect();
     let name = params.get("name");
+    let number = match name {
+        Some(name) => name,
+        None => {
+            let body = json!({
+                "error": "Missing 'name' query parameter"
+            })
+            .to_string();
+            return Ok(Response::builder()
+                .status(StatusCode::BAD_REQUEST)
+                .header("Content-Type", "application/json")
+                .body(body.into())?);
+        }
+        
+    };
 
     Ok(Response::builder()
         .status(StatusCode::OK)
@@ -18,7 +33,7 @@ pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
         .body(
             json!({
               "message": "你好，世界",
-              "fib_number": fib_number(name.unwrap().parse::<u128>().unwrap_or(0)),
+              "fib_number": fib_number(number.parse::<u128>().unwrap_or(0)),
             })
             .to_string()
             .into(),
