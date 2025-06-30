@@ -17,7 +17,8 @@ url = "2.5.4"
 # Each handler has to be specified as [[bin]]
 [[bin]]
 name = "handler"
-path = "api/handler.rs"
+path = "api/handler.rs, api/fibbot.rs"
+
 
 # Note that you need to provide unique names for each binary:
 # [[bin]]
